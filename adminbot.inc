@@ -17,8 +17,8 @@
 	#define ADMIN_BOT_HEX_COLOR					0xFF6347FF 	
 #endif
 
-#if !defined ADMIN_BOT_HEX_COLOR
-	#define MAX_PLAYER_LISTITEM					25 			
+#if !defined MAX_ADMIN_BOT_PLAYER_LISTITEM
+	#define MAX_ADMIN_BOT_PLAYER_LISTITEM					25 			
 #endif
 
 #define	MAX_ADMIN_BOT_REQUEST 				3		
@@ -28,8 +28,10 @@
 #define	MAX_ADMIN_BOT_PUNISH_REASON			50  	
 #define MAX_ADMIN_BOT_PUNISN_NAME_LENGTH	24		
 #define ADMIN_BOT_INVALID_REQUEST_ID		MAX_ADMIN_BOT_SUPPORT_COUNT + 1		
-#define ADMIN_BOT_INVALID_ADMIN_LEVEL		-1			
+#define ADMIN_BOT_INVALID_ADMIN_LEVEL		-1		
 
+#define ADMIN_NAME(%0)						pAdminName[%0]
+#define ADMIN_LEVEL(%0)						pAdminLevel[%0]
 
 static_enum
 {
@@ -60,11 +62,11 @@ static_enum e_ADMIN_BOT_INFO
 
 static
 	AdminBotInfo[MAX_ADMIN_BOT_SUPPORT_COUNT][e_ADMIN_BOT_INFO], 
-	PlayerListitem[MAX_PLAYERS][MAX_PLAYER_LISTITEM] 
+	PlayerListitem[MAX_PLAYERS][MAX_ADMIN_BOT_PLAYER_LISTITEM] 
 ;
 
 static
-	const ADMIN_BOT_PUNISH_NAME[MAX_ADMIN_BOT_REQUEST][MAX_ADMIN_BOT_PUNISN_NAME_LENGTH + 1] = 
+	const ADMIN_BOT_PUNISH_NAME[MAX_ADMIN_BOT_REQUEST][60 + 1] = //MAX_ADMIN_BOT_PUNISN_NAME_LENGTH
 	{
 		"Заглушить",
 		"Посадить в админ. тюрьму",
@@ -89,10 +91,10 @@ static
 	
 static
 	gADMIN_BOT_SUPPORT_TOTAL_COUNT = 0, 
-	pAdminChoseRequest[MAX_PLAYERS char], 
-	Iterator:AdminPlayers<MAX_PLAYERS>
+	pAdminChoseRequest[MAX_PLAYERS char],
+	pAdminName[MAX_PLAYERS][MAX_PLAYER_NAME + 1],
+	pAdminLevel[MAX_PLAYERS] = {0, ...}
 ;
-
 
 stock AB_GetRequestInfo(playerid)
 {
@@ -101,23 +103,18 @@ stock AB_GetRequestInfo(playerid)
 
 	new
 		count = pAdminChoseRequest{playerid},
-		string[MAX_CHATBUBBLE_LEGNTH + 1]
+		string[MAX_CHATBUBBLE_LENGTH + 1]
 	;
 	
 	
-	format(string, sizeof string, "\n\
-		{C0F08E}Запросил: {FFFFFF}%s\n\
-		{ED8473}Наказать: {FFFFFF}%s\n\n\
-		Тип: %s\n\
-		Время: %d мин\n\
-		Причина: %s\n\n\n\
-		%s",
-		PlayerName(AdminBotInfo[count][AB_adminid]),
-		PlayerName(AdminBotInfo[count][AB_targetid]),
+	format(string, sizeof string, "\n{C0F08E}Запросил: {FFFFFF}%s\n{ED8473}Наказать: {FFFFFF}%s\n\n\
+		Тип: %s\nВремя: %d мин\nПричина: %s\n\n\n%s",
+		ADMIN_NAME(AdminBotInfo[count][AB_adminid]),
+		ADMIN_NAME(AdminBotInfo[count][AB_targetid]),
 		ADMIN_BOT_PUNISH_NAME[AdminBotInfo[count][AB_punish_type]],
 		AdminBotInfo[count][AB_punish_time],
 		AdminBotInfo[count][AB_punish_reason],
-		ADMIN_BOT_LEVEL_USING_CMD[AdminBotInfo[count][AB_punish_type]] > AdminLevel(playerid) 
+		ADMIN_BOT_LEVEL_USING_CMD[AdminBotInfo[count][AB_punish_type]] > ADMIN_LEVEL(playerid) 
 		? ("{AFAFAF}Вы не можете принять запрос") : ("{E2BE1D}Вы можете принять запрос")
 	);
 
@@ -127,7 +124,7 @@ stock AB_GetRequestInfo(playerid)
 		DIALOG_STYLE_MSGBOX,
 		!" ",
 		string,
-		!"Хорошо", !""
+		!"Назад", !""
 	);
 }
 
@@ -140,9 +137,9 @@ stock AB_ShowRequestMenu(playerid)
 		playerid,
 		dAB_reqmenu,
 		DIALOG_STYLE_LIST,
-		PlayerName(AdminBotInfo[pAdminChoseRequest{playerid}][AB_targetid]),
+		ADMIN_NAME(AdminBotInfo[pAdminChoseRequest{playerid}][AB_targetid]),
 		!"{C0F08E}Наказать\n{FFFFFF}Информация\nОтклонить", 
-		!"Далее", !"Выход"
+		!"Далее", !"Назад"
 	);
 }
 
@@ -165,10 +162,10 @@ stock AB_GetRequestListInfo(playerid)
 			
 		format(string, sizeof string, "%s%s\t%s(%d мин)\t%s\t%s\n",
 			string,
-			PlayerName(AdminBotInfo[iter][AB_adminid]),
+			ADMIN_NAME(AdminBotInfo[iter][AB_adminid]),
 			ADMIN_BOT_PUNISH_NAME[AdminBotInfo[iter][AB_punish_type]],
 			AdminBotInfo[iter][AB_punish_time],
-			PlayerName(AdminBotInfo[iter][AB_targetid]),
+			ADMIN_NAME(AdminBotInfo[iter][AB_targetid]),
 			AdminBotInfo[iter][AB_punish_reason]
 		);
 
@@ -180,7 +177,7 @@ stock AB_GetRequestListInfo(playerid)
 		playerid,
 		dAB_reqlist ,
 		DIALOG_STYLE_TABLIST_HEADERS,
-		!"Запросы админ-боту",
+		"Запросы админ-боту",
 		string,
 		!"Далее", !""
 	);
@@ -252,9 +249,9 @@ stock AB_CheckAvailability(playerid, params[])
 					continue;
 				
 				format(string, sizeof string, "[ADMIN-BOT] {FFFFFF}%s запросил %s игрока %s на %d мин, причина: %s",
-					PlayerName(playerid), 
+					ADMIN_NAME(playerid), 
 					ADMIN_BOT_PUNISH_NAME[i], 
-					PlayerName(supportTargetid),
+					ADMIN_NAME(supportTargetid),
 					supportTime,
 					supportReason
 				);
@@ -286,13 +283,13 @@ stock AB_RejectRequest(playerid, index)
 		string[MAX_CHATBUBBLE_LENGTH + 1];
 
 	format(string, sizeof string, "[ADMIN-BOT] {FFFFFF}%s отклонил запрос №%d",
-		PlayerName(playerid), index + 1);
+		ADMIN_NAME(playerid), index + 1);
 	SendAdminMessage(ADMIN_BOT_HEX_COLOR, string);
 
 	format(string, sizeof string, "(Отправитель: %s | Просьба: %s | Наказуемый: %s | Причина: %s)",
-		PlayerName(AdminBotInfo[index][AB_targetid]),
+		ADMIN_NAME(AdminBotInfo[index][AB_targetid]),
 		ADMIN_BOT_PUNISH_NAME[AdminBotInfo[index][AB_punish_type]],
-		PlayerName(AdminBotInfo[index][AB_adminid]),
+		ADMIN_NAME(AdminBotInfo[index][AB_adminid]),
 		AdminBotInfo[index][AB_punish_reason]
 	);
 	SendAdminMessage(ADMIN_BOT_HEX_COLOR, string);
@@ -310,7 +307,7 @@ stock AB_ApproveRequest(playerid, index)
 			AdminBotInfo[index][AB_targetid],
 			AdminBotInfo[index][AB_punish_time],
 			AdminBotInfo[index][AB_punish_reason],
-			PlayerName(AdminBotInfo[index][AB_adminid])
+			ADMIN_NAME(AdminBotInfo[index][AB_adminid])
 	);
 	PC_EmulateCommand(playerid, string);
 
@@ -363,6 +360,8 @@ public OnPlayerConnect(playerid)
 {
 	pAdminChoseRequest{playerid} = ADMIN_BOT_INVALID_REQUEST_ID;
 
+	GetPlayerName(playerid, pAdminName[playerid], MAX_PLAYER_NAME);
+
 	#if defined AB_OnPlayerConnect
 		return AB_OnPlayerConnect(playerid);
 	#else
@@ -376,7 +375,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 	{
 		case dAB_reqinfo: 
 		{ 
-			return AB_ShowRequestMenu(playerid); 
+			return AB_GetRequestMenu(playerid); 
 		} 
 
 		case dAB_reqmenu: 
@@ -398,7 +397,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			{ 
 				case 0: 
 				{ 
-					if(ADMIN_BOT_LEVEL_USING_CMD[AdminBotInfo[count][AB_punish_type]] > AdminLevel(playerid)) 
+					if(ADMIN_BOT_LEVEL_USING_CMD[AdminBotInfo[count][AB_punish_type]] > ADMIN_LEVEL(playerid)) 
 					{ 
 						pAdminChoseRequest{playerid} = ADMIN_BOT_INVALID_REQUEST_ID; 
 
@@ -419,7 +418,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				{ 
 
 					if((AdminBotInfo[count][AB_adminid] != playerid)  
-					&& (ADMIN_BOT_LEVEL_USING_CMD[AdminBotInfo[count][AB_punish_type]] > AdminLevel(playerid))) 
+					&& (ADMIN_BOT_LEVEL_USING_CMD[AdminBotInfo[count][AB_punish_type]] > ADMIN_LEVEL(playerid))) 
 					{ 
 						pAdminChoseRequest{playerid} = ADMIN_BOT_INVALID_REQUEST_ID; 
 
@@ -447,12 +446,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(AB_IsEmptyRequest(count)) 
 			{ 
 				SendClientMessage(playerid, -1, !"Данный запрос был удалён"); 
-				return AB_GetRequestListInfo(playerid); 
+				return AB_GetRequestList(playerid); 
 			} 
 
 			pAdminChoseRequest{playerid} = count; 
 			
-			return AB_ShowRequestMenu(playerid); 
+			return AB_GetRequestMenu(playerid); 
 		}  
 	}
 
@@ -465,6 +464,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 public OnPlayerDisconnect(playerid, reason)
 {
+	pAdminLevel[playerid] = ADMIN_BOT_INVALID_ADMIN_LEVEL;
+
 	if(AB_GetCountRequest() != MIN_ADMIN_BOT_SUPPORT_COUNT) 
     { 
         for(new iter = 0; iter < MAX_ADMIN_BOT_SUPPORT_COUNT; iter ++) 
@@ -489,16 +490,16 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 	{ 
 		if(AB_GetCountRequest() != MIN_ADMIN_BOT_SUPPORT_COUNT) 
 		{ 
-			if(AdminLevel(playerid)) 
+			if(ADMIN_LEVEL(playerid)) 
 			{ 
 				new 
 					iter = AB_GetLastRequest(); 
 
 				if(iter != -1) 
 				{ 
-					if(ADMIN_BOT_LEVEL_USING_CMD[AdminBotInfo[iter][AB_punish_type]] > AdminLevel(playerid)) 
+					if(ADMIN_BOT_LEVEL_USING_CMD[AdminBotInfo[iter][AB_punish_type]] > ADMIN_LEVEL(playerid)) 
 					{ 
-						SendClientMessage(playerid, -1, !"Малый уровень администрирования для отказа."); 
+						SendClientMessage(playerid, -1, !"Вы неуполномочены отклонять данный запрос."); 
 
 						return 1; 
 					} 
@@ -515,16 +516,16 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 	{ 
 		if(AB_GetCountRequest() != MIN_ADMIN_BOT_SUPPORT_COUNT) 
 		{ 
-			if(AdminLevel(playerid)) 
+			if(ADMIN_LEVEL(playerid)) 
 			{ 
 				new 
 					iter = AB_GetLastRequest(); 
 
 				if(iter != -1) 
 				{     
-					if(ADMIN_BOT_LEVEL_USING_CMD[AdminBotInfo[iter][AB_punish_type]] > AdminLevel(playerid)) 
+					if(ADMIN_BOT_LEVEL_USING_CMD[AdminBotInfo[iter][AB_punish_type]] > ADMIN_LEVEL(playerid)) 
 					{ 
-						SendClientMessage(playerid, -1, !"Малый уровень администрирования для принятия."); 
+						SendClientMessage(playerid, -1, !"Вы неуполномочены принимать данный запрос."); 
 
 						return 1; 
 					} 
