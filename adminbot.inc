@@ -131,7 +131,7 @@ stock AB_GetRequestInfo(playerid)
 	);
 }
 
-stock AB_GetRequestMenu(playerid)
+stock AB_ShowRequestMenu(playerid)
 {
 	if(pAdminChoseRequest{playerid} == ADMIN_BOT_INVALID_REQUEST_ID)
 		return 0;
@@ -146,7 +146,7 @@ stock AB_GetRequestMenu(playerid)
 	);
 }
 
-stock AB_GetRequestList(playerid)
+stock AB_GetRequestListInfo(playerid)
 {
 	new
 		string[(4 + ((MAX_PLAYER_NAME + 1 - 2) * 2) + (- 2 + MAX_ADMIN_BOT_PUNISH_REASON) + (- 2 + MAX_ADMIN_BOT_PUNISN_NAME_LENGTH) 
@@ -262,7 +262,7 @@ stock AB_CheckAvailability(playerid, params[])
 
 				SendAdminMessage(ADMIN_BOT_HEX_COLOR, !"Нажмите Y для одобрения, N для отказа. (/viewreq для просмотра всех запросов)");
 
-				AB_SetRequest(
+				AB_AddRequest(
 					j, 
 					i, 
 					supportTime, 
@@ -339,7 +339,7 @@ stock AB_DeleteRequest(index)
 	}
 }
 
-stock AB_SetRequest(index, type, &time, &adminid, &targetid, &unix_time, reason[], const size = sizeof reason)
+stock AB_AddRequest(index, type, &time, &adminid, &targetid, &unix_time, reason[], const size = sizeof reason)
 {
 	AdminBotInfo[index][AB_punish_type] = type;
 	AdminBotInfo[index][AB_punish_time] = time;
@@ -376,7 +376,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 	{
 		case dAB_reqinfo: 
 		{ 
-			return AB_GetRequestMenu(playerid); 
+			return AB_ShowRequestMenu(playerid); 
 		} 
 
 		case dAB_reqmenu: 
@@ -447,12 +447,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(AB_IsEmptyRequest(count)) 
 			{ 
 				SendClientMessage(playerid, -1, !"Данный запрос был удалён"); 
-				return AB_GetRequestList(playerid); 
+				return AB_GetRequestListInfo(playerid); 
 			} 
 
 			pAdminChoseRequest{playerid} = count; 
 			
-			return AB_GetRequestMenu(playerid); 
+			return AB_ShowRequestMenu(playerid); 
 		}  
 	}
 
