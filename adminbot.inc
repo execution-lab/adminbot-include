@@ -114,8 +114,12 @@ stock AB_GetRequestInfo(playerid)
 	;
 	
 	
-	format(string, sizeof string, "\n{C0F08E}Запросил: {FFFFFF}%s\n{ED8473}Наказать: {FFFFFF}%s\n\n\
-		Тип: %s\nВремя: %d мин\nПричина: %s\n\n\n%s",
+	format(string, sizeof string, "\n\
+		{C0F08E}Запросил: {FFFFFF}%s\n{ED8473}Наказать: {FFFFFF}%s\n\n\
+		Тип: %s\n\
+		Время: %d мин\n\
+		Причина: %s\n\n\n\
+		%s",
 		ADMIN_NAME(AdminBotInfo[count][AB_adminid]),
 		ADMIN_NAME(AdminBotInfo[count][AB_targetid]),
 		ADMIN_BOT_PUNISH_NAME[AdminBotInfo[count][AB_punish_type]],
