@@ -6,42 +6,50 @@ Assistant for administration on samp-sevrers
 **Add Request**
 
 ```cpp
-AB_AddRequest(index, type, &time, &adminid, &targetid, &unix_time, reason[], const size = sizeof reason)```
+AB_AddRequest(index, type, &time, &adminid, &targetid, &unix_time, reason[], const size = sizeof reason)
+```
 
 **Delete Request**
 
 ```cpp
-AB_DeleteRequest(index)```
+AB_DeleteRequest(index)
+```
 
 **Approve request**
 
 ```cpp
-AB_ApproveRequest(playerid, index)```
+AB_ApproveRequest(playerid, index)
+```
 
 **Reject Request**
 
 ```cpp
-AB_RejectRequest(playerid, index)```
+AB_RejectRequest(playerid, index)
+```
 
 **Check Availability**
 
 ```cpp
-AB_CheckAvailability(playerid, params[])```
+AB_CheckAvailability(playerid, params[])
+```
 
 **Get the number of requests**
 
 ```cpp
-AB_GetCountRequest()```
+AB_GetCountRequest()
+```
 
 **Get the latest request**
 
 ```cpp
-AB_GetLastRequest()```
+AB_GetLastRequest()
+```
 
 **Get information about the request**
 
 ```cpp
-AB_GetRequestListInfo(playerid)```
+AB_GetRequestListInfo(playerid)
+```
 
 **Show menu with queries**
 
