@@ -13,6 +13,8 @@
     #define static_enum        enum
 #endif
 
+#define	ADMIN_BOT_VERSION					"2.0.1"
+
 #if !defined ADMIN_BOT_HEX_COLOR
 	#define ADMIN_BOT_HEX_COLOR					0xFF6347FF 	
 #endif
@@ -66,7 +68,7 @@ static
 ;
 
 static
-	const ADMIN_BOT_PUNISH_NAME[MAX_ADMIN_BOT_REQUEST][60 + 1] = //MAX_ADMIN_BOT_PUNISN_NAME_LENGTH
+	const ADMIN_BOT_PUNISH_NAME[MAX_ADMIN_BOT_REQUEST][MAX_ADMIN_BOT_PUNISN_NAME_LENGTH + 1] =
 	{
 		"Заглушить",
 		"Посадить в админ. тюрьму",
@@ -93,8 +95,13 @@ static
 	gADMIN_BOT_SUPPORT_TOTAL_COUNT = 0, 
 	pAdminChoseRequest[MAX_PLAYERS char],
 	pAdminName[MAX_PLAYERS][MAX_PLAYER_NAME + 1],
-	pAdminLevel[MAX_PLAYERS] = {0, ...}
+	pAdminLevel[MAX_PLAYERS] = {ADMIN_BOT_INVALID_ADMIN_LEVEL, ...}
 ;
+
+stock AB_SetPlayerAdminLevel(playerid, const level)
+{
+	pAdminLevel[playerid] = level;
+}
 
 stock AB_GetRequestInfo(playerid)
 {
