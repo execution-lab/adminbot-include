@@ -13,7 +13,7 @@
     #define static_enum        enum
 #endif
 
-#define	ADMIN_BOT_VERSION					"2.0.1"
+#define	ADMIN_BOT_VERSION					"2.1.0"
 
 #if !defined ADMIN_BOT_HEX_COLOR
 	#define ADMIN_BOT_HEX_COLOR					0xFF6347FF 	
@@ -30,7 +30,7 @@
 #define	MAX_ADMIN_BOT_PUNISH_REASON			50  	
 #define MAX_ADMIN_BOT_PUNISN_NAME_LENGTH	24		
 #define ADMIN_BOT_INVALID_REQUEST_ID		MAX_ADMIN_BOT_SUPPORT_COUNT + 1		
-#define ADMIN_BOT_INVALID_ADMIN_LEVEL		-1		
+#define ADMIN_BOT_MIN_ADMIN_LEVEL			0		
 
 #define ADMIN_NAME(%0)						pAdminName[%0]
 #define ADMIN_LEVEL(%0)						pAdminLevel[%0]
@@ -95,12 +95,51 @@ static
 	gADMIN_BOT_SUPPORT_TOTAL_COUNT = 0, 
 	pAdminChoseRequest[MAX_PLAYERS char],
 	pAdminName[MAX_PLAYERS][MAX_PLAYER_NAME + 1],
-	pAdminLevel[MAX_PLAYERS] = {ADMIN_BOT_INVALID_ADMIN_LEVEL, ...}
+	pAdminLevel[MAX_PLAYERS] = {ADMIN_BOT_MIN_ADMIN_LEVEL, ...}
 ;
+
+#if defined foreach
+static
+	Iterator:AdminPlayers<MAX_PLAYERS>
+#endif
 
 stock AB_SetPlayerAdminLevel(playerid, const level)
 {
+#if defined foreach
+	if(level == ADMIN_BOT_MIN_ADMIN_LEVEL)
+	{
+		if(Iter_Contains(AdminPlayers, playerid))
+			Iter_Remove(AdminPlayers, playerid);
+	}
+	else
+	{
+		if(!Iter_Contains(AdminPlayers, playerid))
+			Iter_Add(AdminPlayers, playerid);
+	}
+#endif
 	pAdminLevel[playerid] = level;
+}
+
+stock AB_SetAdminMessage(color, const messages[])
+{
+#if defined foreach
+    foreach(new i : Connect_Admin)
+#else
+	{
+#endif
+		for(new i = GetPlayerPoolSize(); i > -1; --i)
+        {
+			if(!IsPlayerConnected(i))
+		  		continue;
+			
+			if(pAdminLevel[playerid] = ADMIN_BOT_MIN_ADMIN_LEVEL)
+				continue;
+
+			SendClientMessage(i, color, string);
+    	}
+	}
+
+	return 1;
 }
 
 stock AB_GetRequestInfo(playerid)
@@ -266,9 +305,9 @@ stock AB_CheckAvailability(playerid, params[])
 					supportTime,
 					supportReason
 				);
-				SendAdminMessage(ADMIN_BOT_HEX_COLOR, string);
+				AB_SetAdminMessage(ADMIN_BOT_HEX_COLOR, string);
 
-				SendAdminMessage(ADMIN_BOT_HEX_COLOR, !"Press Y to approve, N to refuse. (/viewreq to view all requests)");
+				AB_SetAdminMessage(ADMIN_BOT_HEX_COLOR, !"Press Y to approve, N to refuse. (/viewreq to view all requests)");
 
 				AB_AddRequest(
 					j, 
@@ -295,7 +334,7 @@ stock AB_RejectRequest(playerid, index)
 
 	format(string, sizeof string, "[ADMIN-BOT] {FFFFFF}%s rejected the request ¹%d",
 		ADMIN_NAME(playerid), index + 1);
-	SendAdminMessage(ADMIN_BOT_HEX_COLOR, string);
+	AB_SetAdminMessage(ADMIN_BOT_HEX_COLOR, string);
 
 	format(string, sizeof string, "Sender: %s | Request: %s | Punishable: %s | Reason: %s)",
 		ADMIN_NAME(AdminBotInfo[index][AB_targetid]),
@@ -303,7 +342,7 @@ stock AB_RejectRequest(playerid, index)
 		ADMIN_NAME(AdminBotInfo[index][AB_adminid]),
 		AdminBotInfo[index][AB_punish_reason]
 	);
-	SendAdminMessage(ADMIN_BOT_HEX_COLOR, string);
+	AB_SetAdminMessage(ADMIN_BOT_HEX_COLOR, string);
 
 	AB_DeleteRequest(index);
 }
@@ -475,7 +514,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 public OnPlayerDisconnect(playerid, reason)
 {
-	pAdminLevel[playerid] = ADMIN_BOT_INVALID_ADMIN_LEVEL;
+	AB_SetPlayerAdminLevel(playerid, ADMIN_BOT_MIN_ADMIN_LEVEL);
 
 	if(AB_GetCountRequest() != MIN_ADMIN_BOT_SUPPORT_COUNT) 
     { 
