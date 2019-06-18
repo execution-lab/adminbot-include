@@ -1,5 +1,8 @@
 # adminbot-include
-Assistant for administration on samp-sevrers
+Assistant for administration on samp-sevrers.
+
+Used command processes Pawn.CMD.
+It is advisable to use foreach.
 
 # Function
 
