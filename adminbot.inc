@@ -70,9 +70,9 @@ static
 static
 	const ADMIN_BOT_PUNISH_NAME[MAX_ADMIN_BOT_REQUEST][MAX_ADMIN_BOT_PUNISN_NAME_LENGTH + 1] =
 	{
-		"Заглушить",
-		"Посадить в админ. тюрьму",
-		"Посадить в тюрьму"
+		"Muffle",
+		"Put in admin. the prison",
+		"To imprison"
 	};
 
 static
@@ -115,10 +115,10 @@ stock AB_GetRequestInfo(playerid)
 	
 	
 	format(string, sizeof string, "\n\
-		{C0F08E}Запросил: {FFFFFF}%s\n{ED8473}Наказать: {FFFFFF}%s\n\n\
-		Тип: %s\n\
-		Время: %d мин\n\
-		Причина: %s\n\n\n\
+		{C0F08E}Requested: {FFFFFF}%s\n{ED8473}Punish: {FFFFFF}%s\n\n\
+		Type of: %s\n\
+		Time: %d мин\n\
+		Reason: %s\n\n\n\
 		%s",
 		ADMIN_NAME(AdminBotInfo[count][AB_adminid]),
 		ADMIN_NAME(AdminBotInfo[count][AB_targetid]),
@@ -126,7 +126,7 @@ stock AB_GetRequestInfo(playerid)
 		AdminBotInfo[count][AB_punish_time],
 		AdminBotInfo[count][AB_punish_reason],
 		ADMIN_BOT_LEVEL_USING_CMD[AdminBotInfo[count][AB_punish_type]] > ADMIN_LEVEL(playerid) 
-		? ("{AFAFAF}Вы не можете принять запрос") : ("{E2BE1D}Вы можете принять запрос")
+		? ("{AFAFAF}You can not accept the request") : ("{E2BE1D}You can accept the request")
 	);
 
 	return ShowPlayerDialog(
@@ -135,7 +135,7 @@ stock AB_GetRequestInfo(playerid)
 		DIALOG_STYLE_MSGBOX,
 		!" ",
 		string,
-		!"Назад", !""
+		!"Back", !""
 	);
 }
 
@@ -149,8 +149,8 @@ stock AB_ShowRequestMenu(playerid)
 		dAB_reqmenu,
 		DIALOG_STYLE_LIST,
 		ADMIN_NAME(AdminBotInfo[pAdminChoseRequest{playerid}][AB_targetid]),
-		!"{C0F08E}Наказать\n{FFFFFF}Информация\nОтклонить", 
-		!"Далее", !"Назад"
+		!"{C0F08E}Punish\n{FFFFFF}Information\Reject", 
+		!"Next", !"Back"
 	);
 }
 
@@ -160,7 +160,7 @@ stock AB_GetRequestListInfo(playerid)
 		string[(4 + ((MAX_PLAYER_NAME + 1 - 2) * 2) + (- 2 + MAX_ADMIN_BOT_PUNISH_REASON) + (- 2 + MAX_ADMIN_BOT_PUNISN_NAME_LENGTH) 
 		+ (- 2 + 4)) * MAX_ADMIN_BOT_SUPPORT_COUNT + 46] = 
 		{
-			"Запросил\tДейсвтие(время)\tНаказать\tПричина\n"
+			"Requested\Act(time)\Punish\tReason\n"
 		},
 
 		count = 0
@@ -171,7 +171,7 @@ stock AB_GetRequestListInfo(playerid)
 		if(AB_IsEmptyRequest(iter))
 				continue;
 			
-		format(string, sizeof string, "%s%s\t%s(%d мин)\t%s\t%s\n",
+		format(string, sizeof string, "%s%s\t%s(%d min)\t%s\t%s\n",
 			string,
 			ADMIN_NAME(AdminBotInfo[iter][AB_adminid]),
 			ADMIN_BOT_PUNISH_NAME[AdminBotInfo[iter][AB_punish_type]],
@@ -188,9 +188,9 @@ stock AB_GetRequestListInfo(playerid)
 		playerid,
 		dAB_reqlist ,
 		DIALOG_STYLE_TABLIST_HEADERS,
-		"Запросы админ-боту",
+		!"Requests admin bot",
 		string,
-		!"Далее", !""
+		!"Next", !""
 	);
 }
 
@@ -259,7 +259,7 @@ stock AB_CheckAvailability(playerid, params[])
 				if(!AB_IsEmptyRequest(j))
 					continue;
 				
-				format(string, sizeof string, "[ADMIN-BOT] {FFFFFF}%s запросил %s игрока %s на %d мин, причина: %s",
+				format(string, sizeof string, "[ADMIN-BOT] {FFFFFF}%s requested %s player %s for %d min, reason: %s",
 					ADMIN_NAME(playerid), 
 					ADMIN_BOT_PUNISH_NAME[i], 
 					ADMIN_NAME(supportTargetid),
@@ -268,7 +268,7 @@ stock AB_CheckAvailability(playerid, params[])
 				);
 				SendAdminMessage(ADMIN_BOT_HEX_COLOR, string);
 
-				SendAdminMessage(ADMIN_BOT_HEX_COLOR, !"Нажмите Y для одобрения, N для отказа. (/viewreq для просмотра всех запросов)");
+				SendAdminMessage(ADMIN_BOT_HEX_COLOR, !"Press Y to approve, N to refuse. (/viewreq to view all requests)");
 
 				AB_AddRequest(
 					j, 
@@ -293,11 +293,11 @@ stock AB_RejectRequest(playerid, index)
 	new
 		string[MAX_CHATBUBBLE_LENGTH + 1];
 
-	format(string, sizeof string, "[ADMIN-BOT] {FFFFFF}%s отклонил запрос №%d",
+	format(string, sizeof string, "[ADMIN-BOT] {FFFFFF}%s rejected the request №%d",
 		ADMIN_NAME(playerid), index + 1);
 	SendAdminMessage(ADMIN_BOT_HEX_COLOR, string);
 
-	format(string, sizeof string, "(Отправитель: %s | Просьба: %s | Наказуемый: %s | Причина: %s)",
+	format(string, sizeof string, "Sender: %s | Request: %s | Punishable: %s | Reason: %s)",
 		ADMIN_NAME(AdminBotInfo[index][AB_targetid]),
 		ADMIN_BOT_PUNISH_NAME[AdminBotInfo[index][AB_punish_type]],
 		ADMIN_NAME(AdminBotInfo[index][AB_adminid]),
@@ -399,7 +399,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			} 
 
 			if(AB_IsEmptyRequest(pAdminChoseRequest{playerid})) 
-				return SendClientMessage(playerid, -1, !"Данный запрос был удалён"); 
+				return SendClientMessage(playerid, -1, !"This request has been deleted."); 
 			
 			new 
 				count = pAdminChoseRequest{playerid}; 
@@ -412,7 +412,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					{ 
 						pAdminChoseRequest{playerid} = ADMIN_BOT_INVALID_REQUEST_ID; 
 
-						return SendClientMessage(playerid, -1, !"Вы неуполномочены принимать данный запрос."); 
+						return SendClientMessage(playerid, -1, !"You are not authorized to accept this request."); 
 					} 
 					
 					pAdminChoseRequest{playerid} = ADMIN_BOT_INVALID_REQUEST_ID; 
@@ -433,7 +433,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					{ 
 						pAdminChoseRequest{playerid} = ADMIN_BOT_INVALID_REQUEST_ID; 
 
-						return SendClientMessage(playerid, -1, !"Вы неуполномочены отлонять данный запрос"); 
+						return SendClientMessage(playerid, -1, !"You are not authorized to reject this request."); 
 					} 
 					
 					pAdminChoseRequest{playerid} = ADMIN_BOT_INVALID_REQUEST_ID; 
@@ -456,7 +456,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 			if(AB_IsEmptyRequest(count)) 
 			{ 
-				SendClientMessage(playerid, -1, !"Данный запрос был удалён"); 
+				SendClientMessage(playerid, -1, !"This request has been deleted."); 
 				return AB_GetRequestList(playerid); 
 			} 
 
@@ -510,7 +510,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 				{ 
 					if(ADMIN_BOT_LEVEL_USING_CMD[AdminBotInfo[iter][AB_punish_type]] > ADMIN_LEVEL(playerid)) 
 					{ 
-						SendClientMessage(playerid, -1, !"Вы неуполномочены отклонять данный запрос."); 
+						SendClientMessage(playerid, -1, !"You are not authorized to reject this request."); 
 
 						return 1; 
 					} 
@@ -536,7 +536,7 @@ public OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 				{     
 					if(ADMIN_BOT_LEVEL_USING_CMD[AdminBotInfo[iter][AB_punish_type]] > ADMIN_LEVEL(playerid)) 
 					{ 
-						SendClientMessage(playerid, -1, !"Вы неуполномочены принимать данный запрос."); 
+						SendClientMessage(playerid, -1, !"You are not authorized to accept this request."); 
 
 						return 1; 
 					} 
